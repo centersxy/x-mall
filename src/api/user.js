@@ -1,8 +1,8 @@
 import $http from './config'
 
-const baseUrl = '/api'
+const BaseUrl = '/api'
 
 export const register = (params) => {
-  return $http.fetchPost(`${baseUrl}/user/register`, params)
+  return $http.fetchPost(`${BaseUrl}/user/register`, params)
 }
 

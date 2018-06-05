@@ -13,9 +13,9 @@ app.use(bodyParser.urlencoded({extended: false}));//post请求配置
 
 //模块划分
 app.use('/api/user', require('./routers/user'));
+app.use('/api/goods', require('./routers/goods'));
 
 // 连接MongoDB
-
 mongoose.Promise = global.Promise;
 
 mongoose.connect('mongodb://localhost:27017/X-mall', function (err) {

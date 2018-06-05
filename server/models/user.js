@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var userModel = new mongoose.Schema({
+const userModel = new mongoose.Schema({
   "userId": String,
   "userName": String,
   "userPwd": String,
@@ -11,4 +11,4 @@ var userModel = new mongoose.Schema({
     default: Date.now
   }
 });
-module.exports = mongoose.model('user', userModel)
+module.exports = mongoose.model('user', userModel);

@@ -29,7 +29,8 @@
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style scoped lang="stylus" type="text/stylus">
+  
   input{
     width: 200px;
   }
