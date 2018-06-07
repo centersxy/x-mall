@@ -16,7 +16,7 @@
         <a href="">
           <input type="button" value="查看详情">
         </a>
-        <input type="button" value="加入购物车">
+        <input type="button" value="加入购物车" @click="addCart(goods.productId)">
       </div>
       <p><span>￥</span>{{goods.productPrice}}</p>
     </div>
@@ -24,16 +24,21 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import {addCart} from 'api/goods'
   export default{
     props: {
       goods: {type: [Object, Array]}
     },
-    mounted() {
-      console.log(this.goods)
-    },
     data() {
       return {
         imgSrc: require('./../../common/images/69f3542181c3710a0ec80f66b664eef6.jpg')
+      }
+    },
+    methods: {
+      addCart(id) {
+        addCart({productId: id}).then((res) => {
+          console.log(res)
+        })
       }
     }
   }

@@ -4,8 +4,17 @@
       <div class="h-box">
         <div class="logo"></div>
         <div class="nav-aside" :class="{fixed: (addClass && showNav)}">
-          <div class="s-user pr">人</div>
-          <div class="s-car pr">车</div>
+          <div class="s-user pr">
+            <a href="">
+              <i class="icon icon-user1"></i>
+            </a>
+          </div>
+          <div class="s-car pr">
+            <a href="">
+              <i class="icon icon-cart"></i>
+              <span class="cart-num"></span>
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -26,9 +35,14 @@
 
 <script type="text/ecmascript-6">
   export default{
+    props: {
+      showNav:{
+        type: Boolean,
+        default: true
+      }
+    },
     data() {
       return {
-        showNav: true,
         scrollTop: 100,
         addClass: false
       }
@@ -78,19 +92,43 @@
             top: -40px
             z-index: 21
             left: 50%;
-            margin-left: 451px;
+            margin-left: 458px;
             margin-top: 0;
             transform: translate3d(0, 59px, 0);
             transition: transform .3s cubic-bezier(.165, .84, .44, 1);
           .pr
             width: 36px
             margin-left: 40px
-            i
-              position: relative
-              width: 36px
-              height: 20px
+            a
               display: block
-              text-indent: -9999px
+              position: relative
+              i
+                position: relative
+                width: 36px
+                height: 20px
+                text-align: center
+                font-size: 20px
+                display: block
+              .cart-num
+                position: absolute
+                top: 2px
+                left: 30px
+                background: #eb746b
+                background-image: linear-gradient(#eb746b,#e25147)
+                box-shadow: inset 0 0 1px hsla(0,0%,100%,.15), 0 1px 2px hsla(0,0%,100%,.15)
+                text-align: center
+                font-style: normal
+                display: inline-block
+                width: 18px
+                height: 18px
+                line-height: 20px
+                border-radius: 10px
+                color: #fff
+                font-size: 12px
+              .no
+                background: #969696
+                background-image: linear-gradient(#a4a4a4,#909090)
+                box-shadow: inset 0 0 1px #838383, 0 1px 2px #838383
     .w
       width: 1220px
       margin: 0 auto

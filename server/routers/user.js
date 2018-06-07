@@ -44,12 +44,16 @@ router.post('/register', async (req, res) => {
   }
 });
 //login
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const {userName, userPwd} = req.body;
   try {
-    const doc = userModel.findOne({userName, userPwd});
+    const doc = await userModel.findOne({userName, userPwd});
     if (doc) {
       const {userId, avatar, name} = doc;
+      res.cookie('userId', userId, {
+        path: '/',
+        maxAge: 1000 * 60 * 60
+      });
       res.json({
         code: '0',
         message: 'suc',
@@ -72,4 +76,121 @@ router.get('/login', async (req, res) => {
   }
 });
 
+router.get('logOut', (req, res) => {
+  res.cookie('userId', '', {
+    path: '/',
+    maxAge: -1
+  });
+  res.json({
+    code: '0',
+    message: 'logout',
+    result: ''
+  })
+});
+
+
+/*
+  // 获取购物车
+*  查看用户是否登录
+*  获取用户模型数据
+* */
+router.post('/cartList', async (req, res) => {
+  const userId = req.cookies.userId;
+  if (userId) {
+    try {
+      const doc = await userModel.findOne({userId: userId});
+      const {cartList} = doc
+      res.json({
+        code: '0',
+        message: 'suc',
+        result: {
+          count: cartList.length,
+          list: cartList
+        }
+      })
+    } catch (err) {
+      res.json({
+        code: '1',
+        message: err.message,
+        result: ''
+      })
+    }
+  } else {
+    res.json({
+      code: '1',
+      message: '用户未登录',
+      result: ''
+    })
+  }
+});
+
+/*
+* 删除当前商品
+* 根据用户id 商品id 找到对应goods
+* 执行$pull
+*
+* 传入的id是mongod自创的objectId
+* */
+router.post('/delGoods', function (req, res, next) {
+  const userId = req.cookies.userId,
+        productId = req.body.id;
+  userModel.update(
+    {
+      userId
+    },
+    {
+      $pull: {
+        cartList: {
+          '_id': productId
+        }
+      }
+    }, function (err, doc) {
+      if(err){
+        res.json({
+          code:'1',
+          message:err.message,
+          result:''
+        });
+        return;
+      }else{
+        res.json({
+          code:'0',
+          message:'suc',
+          result:''
+        });
+      }
+    }
+  )
+});
+
+/*
+*  购物车数量
+*  传入的id是mongod自创的objectId
+* */
+router.post('/editCart', function (req, res, next) {
+  const userId = req.cookies.userId,
+        productId = req.body.productId,
+        productNum = req.body.productNum,
+        checked = req.body.checked;
+  userModel.update({userId, "cartList._id": productId},
+    {
+      "cartList.$.productNum": productNum,
+      "cartList.$.checked": checked
+    }, function (err, doc) {
+      if(err){
+        res.json({
+          code:'1',
+          message:err.message,
+          result:''
+        });
+        return;
+      }else{
+        res.json({
+          code:'0',
+          message:'suc',
+          result:''
+        });
+      }
+    })
+})
 module.exports = router
