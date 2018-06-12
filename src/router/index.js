@@ -5,9 +5,12 @@ import Index from 'components/index'
 import Home from 'components/home/home'
 import Goods from 'components/goods/goods'
 import Cart from 'components/shop-cart/shop-cart'
+import User from 'components/user/user'
+import userInfo from 'components/user/child/userInfo'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -31,6 +34,16 @@ export default new Router({
     {
       path: '/cart',
       component: Cart
+    },
+    {
+      path: '/user',
+      component: User,
+      children: [
+        {
+          path: 'userInfo',
+          component: userInfo
+        }
+      ]
     },
     {path: '*', redirect: '/home'}
   ]

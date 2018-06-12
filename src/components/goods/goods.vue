@@ -23,7 +23,6 @@
 <script type="text/ecmascript-6">
   import GoodsList from 'base/goods-list/goods-list'
   import {getGoods} from 'api/goods'
-  
   export default {
     data() {
       return {
@@ -114,4 +113,5 @@
   .goods-list
     width: 1220px
     margin: 0 auto
+    overflow: hidden
 </style>

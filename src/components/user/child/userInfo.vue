@@ -1,17 +1,11 @@
 <template>
-  <div>
-    <banner></banner>
-  </div>
+<h1>阿达</h1>
 </template>
 
 <script type="text/ecmascript-6">
-  import Banner from 'base/banner/banner'
   export default{
     data() {
       return {}
-    },
-    components: {
-      Banner
     }
   }
 </script>

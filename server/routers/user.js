@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
   try {
     const doc = await userModel.findOne({userName, userPwd});
     if (doc) {
-      const {userId, avatar, name} = doc;
+      const {userId, avatar, name, createTime} = doc;
       res.cookie('userId', userId, {
         path: '/',
         maxAge: 1000 * 60 * 60
@@ -59,7 +59,8 @@ router.post('/login', async (req, res) => {
         message: 'suc',
         result: {
           avatar,
-          name
+          name,
+          createTime
         }
       })
     } else {
@@ -76,7 +77,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('logOut', (req, res) => {
+router.get('/logOut', (req, res) => {
   res.cookie('userId', '', {
     path: '/',
     maxAge: -1
@@ -88,7 +89,36 @@ router.get('logOut', (req, res) => {
   })
 });
 
-
+// 获取用户信息
+router.get('/userInfo', async (req,res) => {
+  const userId = req.cookies.userId;
+  try {
+    if (userId) {
+      let {name, avatar,createTime} = await userModel.findOne({userId});
+      res.json({
+        code: '0',
+        message: 'suc',
+        result:{
+          userInfo: {
+            name,avatar,createTime
+          }
+        }
+      })
+    }else {
+      res.json({
+        code: '1',
+        message: '用户未登录',
+        result: ''
+      })
+    }
+  }catch (err) {
+    res.json({
+      code: '1',
+      message: err.message,
+      result: ''
+    })
+  }
+})
 /*
   // 获取购物车
 *  查看用户是否登录
@@ -133,7 +163,7 @@ router.post('/cartList', async (req, res) => {
 * */
 router.post('/delGoods', function (req, res, next) {
   const userId = req.cookies.userId,
-        productId = req.body.id;
+    productId = req.body.productId;
   userModel.update(
     {
       userId
@@ -141,22 +171,22 @@ router.post('/delGoods', function (req, res, next) {
     {
       $pull: {
         cartList: {
-          '_id': productId
+          'productId': productId
         }
       }
     }, function (err, doc) {
-      if(err){
+      if (err) {
         res.json({
-          code:'1',
-          message:err.message,
-          result:''
+          code: '1',
+          message: err.message,
+          result: ''
         });
         return;
-      }else{
+      } else {
         res.json({
-          code:'0',
-          message:'suc',
-          result:''
+          code: '0',
+          message: 'suc',
+          result: ''
         });
       }
     }
@@ -169,28 +199,69 @@ router.post('/delGoods', function (req, res, next) {
 * */
 router.post('/editCart', function (req, res, next) {
   const userId = req.cookies.userId,
-        productId = req.body.productId,
-        productNum = req.body.productNum,
-        checked = req.body.checked;
-  userModel.update({userId, "cartList._id": productId},
+    productId = req.body.productId,
+    productNum = req.body.productNum,
+    checked = req.body.checked;
+  userModel.update({userId, "cartList.productId": productId},
     {
       "cartList.$.productNum": productNum,
       "cartList.$.checked": checked
     }, function (err, doc) {
-      if(err){
+      if (err) {
         res.json({
-          code:'1',
-          message:err.message,
-          result:''
+          code: '1',
+          message: err.message,
+          result: ''
         });
         return;
-      }else{
+      } else {
         res.json({
-          code:'0',
-          message:'suc',
-          result:''
+          code: '0',
+          message: 'suc',
+          result: ''
         });
       }
     })
-})
+});
+
+/*
+*  全选功能
+*  查找模型、获取是否选择
+*  更新模型、保存数据
+* */
+router.post('/editCheckAll', async (req, res) => {
+  const userId = req.cookies.userId,
+    checkAll = req.body.checkAll? '1': '0';
+  try {
+    const userDoc = await userModel.findOne({userId});
+    if (userDoc) {
+      userDoc.cartList.forEach((item) =>{
+        item.checked = checkAll
+      })
+    }
+    // 重新保存
+    userDoc.save((err) => {
+      if (err) {
+        res.json({
+          code: '1',
+          message: err.message,
+          result: ''
+        });
+        return;
+      } else {
+        res.json({
+          code: '0',
+          message: 'suc',
+          result: ''
+        });
+      }
+    })
+  } catch (err) {
+    res.json({
+      code: '0',
+      message: err.message,
+      result: ''
+    });
+  }
+});
 module.exports = router

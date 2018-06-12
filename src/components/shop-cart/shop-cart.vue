@@ -33,24 +33,27 @@
               <span class="add-num" @click="editCartNum('add', item)">+</span>
             </div>
             <div class="subtotal">¥{{item.productNum * item.productPrice}}</div>
-            <div class="operation" @click="delGoods(item._id)">删除</div>
+            <div class="operation" @click="delGoods(item.productId)">
+              <span></span>
+            </div>
           </div>
           <div class="cart-foot">
             <div class="choose">
-              <input type="checkbox" name="" id="">
+              <span :class="{'checked': checkedAllFlag}" @click="checkedAll"></span>
             </div>
             <div class="choose-btn">
-              <span class="select-all">全选</span>
+              <span class="select-all" @click="checkedAll">全选</span>
             </div>
             <div class="all-info">
               <div class="all-goods-info">
                 <span class="total-num">总计<span>{{checkCount}}</span>件
                 </span>
                 <span class="total-price">总额
-                    <span>¥{{priceAll}}</span>
+                    <span>¥{{priceAll}}{{checkCount}}</span>
                 </span>
               </div>
-              <input type="button" value="去结算">
+              <input type="button" value="去结算" :class="{'disabled': !checkCount}" :disabled="checkCount >0? false: true"
+                     @click="goPlay">
             </div>
           </div>
         </div>
@@ -69,13 +72,15 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {getCartList, delGoods, editCart} from 'api/user'
+  import {getCartList, delGoods, editCart, editCheckAll} from 'api/user'
   import VHeader from 'base/header/header'
+  import {mapMutations, mapGetters} from 'vuex'
   
   export default {
     data() {
       return {
-        cartList: []
+        cartList: [],
+//        checkedAllFlag: false
       }
     },
     created() {
@@ -83,24 +88,61 @@
     },
     computed: {
       priceAll() {
-        let m = 0;
-        this.cartList.forEach((item) => {
-          if (item.checked == '1') {
-            m += item.productNum * item.productPrice
-          }
-        })
-        return m
+//        let m = 0;
+//        this.cartList.forEach((item) => {
+//          if (item.checked == '1') {
+//            m += item.productNum * item.productPrice
+//          }
+//        })
+//        return m
+        return this.cartList.reduce((a, item) => item.checked === '1' ? a + (item.productNum * item.productPrice) : a, 0)
       },
+      /*
+        array.reduce(function(total, currentValue, currentIndex, arr), initialValue)
+        参数	描述
+        function(total,currentValue, index,arr)	必需。用于执行每个数组元素的函数。
+        函数参数:
+        参数	描述
+        total	必需。初始值, 或者计算结束后的返回值。
+        currentValue	必需。当前元素
+        currentIndex	可选。当前元素的索引
+        arr	可选。当前元素所属的数组对象。
+        initialValue	可选。传递给函数的初始值
+       */
       // 选中的数量
       checkCount() {
         return this.cartList.filter((item) => item.checked == '1').length
+      },
+      /*
+      * 全选按钮高亮
+      * 取消在data中定义的参数
+      * 全选 --->选中数量
+      * */
+      checkedAllFlag() {
+        return this.checkCount === this.cartList.length
       }
     },
     methods: {
-      delGoods(id) {
-        delGoods({id}).then((res) => {
-          this._getCartList()
+      // 结算
+      goPlay() {
+        console.log(1)
+      },
+      // 全选
+      checkedAll() {
+        let checkAll = !this.checkedAllFlag
+        this.cartList.forEach((item) => {
+          item.checked = checkAll ? '1' : '0'
         })
+        editCheckAll({checkAll})
+      },
+      delGoods(productId) {
+        delGoods({productId}).then(
+          this.cartList.forEach((item, index) => {
+            if (item.productId === productId) {
+              this.cartList.splice(index , 1)
+            }
+          })
+        )
       },
       editCartNum(flag, item) {
         if (flag == 'add') {
@@ -113,19 +155,18 @@
         } else {
           item.checked = item.checked == 1 ? '0' : '1'
         }
+        let {productId, productNum, checked} = item
         editCart({
-          productId: item._id,
-          productNum: item.productNum,
-          checked: item.checked
-        }).then((res) => {
-          console.log(res)
+          productId,
+          productNum,
+          checked
         })
       },
       _getCartList() {
         getCartList().then((res) => {
           this.cartList = res.result.list
         })
-      }
+      },
     },
     components: {
       VHeader
@@ -240,6 +281,7 @@
             display: inline-block
             background: url("/static/images/no-checked.png") no-repeat
             background-size: 100%
+            vertical-align: middle
             &.checked
               background: url("/static/images/checked.png") no-repeat
               background-size: 100%
@@ -260,6 +302,15 @@
         &.subtotal
           color: #666
           font-weight: 700
+        &.operation
+          span
+            width: 20px
+            height: 20px
+            font-size: 18px
+            display: inline-block
+            background: url("/static/images/delete.png") no-repeat
+            background-size: 100%
+            vertical-align: middle
     .cart-foot
       height: 90px
       display: flex
@@ -275,10 +326,21 @@
         top: 0
         left: 0
         text-align: center
+        span
+          width: 20px
+          height: 20px
+          font-size: 18px
+          display: inline-block
+          background: url("/static/images/no-checked.png") no-repeat
+          background-size: 100%
+          vertical-align: middle
+          &.checked
+            background: url("/static/images/checked.png") no-repeat
+            background-size: 100%
       .choose-btn
         width: 150px
         height: 90px
-        margin-left: 74px
+        margin-left: 60px
         text-align: left
         position: relative
       .all-info
@@ -298,6 +360,11 @@
           color: #fff
           background-color: #678ee7
           background-image: linear-gradient(180deg, #678ee7, #5078df)
+          &.disabled
+            color: #fff;
+            background-color: #a9a9a9;
+            border: 1px solid #afafaf;
+            background-image: linear-gradient(180deg, #b8b8b8, #a9a9a9);
         .all-goods-info
           span
             font-size: 16px

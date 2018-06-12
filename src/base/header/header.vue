@@ -2,18 +2,33 @@
   <div class="header-box">
     <header class="w">
       <div class="h-box">
-        <div class="logo"></div>
+        <div class="logo">
+          <router-link to="/">首页</router-link>
+        </div>
         <div class="nav-aside" :class="{fixed: (addClass && showNav)}">
           <div class="s-user pr">
-            <a href="">
+            <router-link to="/user">
               <i class="icon icon-user1"></i>
-            </a>
+            </router-link>
+            <div class="user-wrap" v-if="userInfo.name">
+              <div class="user-wrap-list">
+                <ul>
+                  <div class="avatar">
+                    <span :style="{backgroundImage: 'url('+userInfo.avatar+')'}"></span>
+                  </div>
+                  <p class="name">{{userInfo.name}}</p>
+                  <li><router-link to="">我的资料</router-link></li>
+                  <li><router-link to="">我的资料</router-link></li>
+                  <li><a href="javascript:;" @click="logOut">退出</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
           <div class="s-car pr">
-            <a href="">
+            <router-link to="cart">
               <i class="icon icon-cart"></i>
-              <span class="cart-num"></span>
-            </a>
+              <span class="cart-num" :class="{'no': !checkCount}">{{checkCount}}</span>
+            </router-link>
           </div>
         </div>
       </div>
@@ -34,6 +49,9 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import {getCartList, delGoods, editCart, editCheckAll, logOut} from 'api/user'
+  import {ERR_OK} from 'api/config'
+  import { mapMutations, mapGetters } from 'vuex'
   export default{
     props: {
       showNav:{
@@ -44,7 +62,8 @@
     data() {
       return {
         scrollTop: 100,
-        addClass: false
+        addClass: false,
+        link: '/user/orderList'
       }
     },
     mounted() {
@@ -53,6 +72,7 @@
       //这个钩子函数完成了对cratView函数的调用
       //应该注意的是，使用mounted 并不能保证钩子函数中的 this.$el 在 document 中。为此还应该引入 Vue.nextTick/vm.$nextTick
       this.$nextTick(() => {
+        this._getCartList()
         this.navAddFixed()
       })
       window.addEventListener('scroll', this.navAddFixed)
@@ -60,13 +80,39 @@
     destroyed() {
       window.removeEventListener('scroll', this.navAddFixed)
     },
+    computed:{
+      ...mapGetters(['cartList','userInfo']),
+      checkCount() {
+        let totalNum =0
+          this.cartList.length && this.cartList.forEach(item => {
+            totalNum += (item.productNum)
+          })
+          return totalNum
+        }
+    },
     methods: {
+      logOut() {
+        logOut().then((res) => {
+          if (ERR_OK === res.code) {
+           window.location.href = '/'
+          }
+        })
+      },
       navAddFixed() {
         if (this.showNav) {
           var top = document.documentElement.scrollTop || document.body.scrollTop
           top >= this.scrollTop ? this.addClass = true : this.addClass = false
         }
-      }
+      },
+      //首页获取一次cartList
+      _getCartList() {
+        getCartList().then((res) => {
+          this.set_cart_list(res.result.list)
+        })
+      },
+      ...mapMutations({
+        set_cart_list:'SET_CART_LIST'
+      })
     }
   }
 </script>
@@ -99,6 +145,16 @@
           .pr
             width: 36px
             margin-left: 40px
+            position: relative
+            &.s-user
+              &:hover
+                i
+                  color: #666
+                .user-wrap
+                  visibility: visible;
+                  opacity: 1;
+                  -webkit-transition: opacity .15s ease-out;
+                  transition: opacity .15s ease-out;
             a
               display: block
               position: relative
@@ -119,8 +175,8 @@
                 text-align: center
                 font-style: normal
                 display: inline-block
-                width: 18px
-                height: 18px
+                width: 20px
+                height: 20px
                 line-height: 20px
                 border-radius: 10px
                 color: #fff
@@ -159,4 +215,67 @@
             a
               display: block
               padding: 0 20px
+  .user-wrap
+    width: 168px
+    position: absolute
+    z-index: 30
+    padding-top: 18px
+    left: -65px
+    opacity: 0
+    visibility: hidden
+    .user-wrap-list
+      position: relative
+      padding-top: 20px
+      background: #fff
+      border: 1px solid #d6d6d6
+      border-color: rgba(0,0,0,.08)
+      border-radius: 8px
+      box-shadow: 0 20px 40px rgba(0,0,0,.15)
+      z-index: 10
+      &:before
+        position: absolute
+        content: " "
+        width:0
+        height:0
+        border-width:0 8px 8px
+        border-style:solid
+        border-color:transparent transparent #fff
+        top: -8px
+        left: 50%
+        transform: translateX(-50%)
+      ul
+        display: block
+        .avatar
+          position: relative
+          margin: 0 auto 8px
+          width: 46px
+          height: 46px
+          text-align: center
+          span
+            border-radius: 50%
+            display: block
+            width: 100%
+            height: 100%
+            background-repeat: no-repeat
+            background-size: cover
+        .name
+          margin-bottom: 16px
+          font-size: 12px
+          line-height: 1.5
+          text-align: center
+          color: #757575
+        li
+          text-align: center
+          position: relative
+          border-top: 1px solid #f5f5f5
+          line-height: 44px
+          height: 44px
+          color: #616161
+          font-size: 12px
+          &:hover
+            background: #f1f1f1
+          a
+            display: block
+            color: #616161
+            
 </style>
