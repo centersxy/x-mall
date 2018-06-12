@@ -27,7 +27,7 @@
           <div class="s-car pr">
             <router-link to="cart">
               <i class="icon icon-cart"></i>
-              <span class="cart-num" :class="{'no': !checkCount}">{{checkCount}}</span>
+              <span class="cart-num no">0</span>
             </router-link>
           </div>
         </div>
@@ -72,7 +72,6 @@
       //这个钩子函数完成了对cratView函数的调用
       //应该注意的是，使用mounted 并不能保证钩子函数中的 this.$el 在 document 中。为此还应该引入 Vue.nextTick/vm.$nextTick
       this.$nextTick(() => {
-        this._getCartList()
         this.navAddFixed()
       })
       window.addEventListener('scroll', this.navAddFixed)
@@ -81,14 +80,14 @@
       window.removeEventListener('scroll', this.navAddFixed)
     },
     computed:{
-      ...mapGetters(['cartList','userInfo']),
-      checkCount() {
-        let totalNum =0
-          this.cartList.length && this.cartList.forEach(item => {
-            totalNum += (item.productNum)
-          })
-          return totalNum
-        }
+      ...mapGetters(['userInfo']),
+//      checkCount() {
+//        let totalNum =0
+//          this.cartList.length && this.cartList.forEach(item => {
+//            totalNum += (item.productNum)
+//          })
+//          return totalNum
+//        }
     },
     methods: {
       logOut() {
@@ -103,16 +102,7 @@
           var top = document.documentElement.scrollTop || document.body.scrollTop
           top >= this.scrollTop ? this.addClass = true : this.addClass = false
         }
-      },
-      //首页获取一次cartList
-      _getCartList() {
-        getCartList().then((res) => {
-          this.set_cart_list(res.result.list)
-        })
-      },
-      ...mapMutations({
-        set_cart_list:'SET_CART_LIST'
-      })
+      }
     }
   }
 </script>
