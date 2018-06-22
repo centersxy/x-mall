@@ -97,6 +97,7 @@
         input
           width: 80px
           height: 30px
+          line-height: 30px
           border: 1px solid #ccc
           display: block
           border-radius: 4px

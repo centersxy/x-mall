@@ -41,3 +41,28 @@ export const editCart = (params) => {
 export const editCheckAll = (params) => {
   return $http.fetchPost(`${BaseUrl}/user/editCheckAll`, params)
 }
+
+
+// add-address
+
+export const addressAdd = (params) => {
+  return $http.fetchPost(`${BaseUrl}/user/addressAdd`, params)
+}
+
+// get-address
+
+export const getAddress = (params) => {
+  return $http.fetchPost(`${BaseUrl}/user/getAddress`, params)
+}
+
+// edit-address
+
+export const editAddress = (params) => {
+  return $http.fetchPost(`${BaseUrl}/user/editAddress`, params)
+}
+
+// del-address
+
+export const delAddress = (params) => {
+  return $http.fetchGet(`${BaseUrl}/user/addressListDel`, params)
+}

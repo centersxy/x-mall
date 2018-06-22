@@ -4,9 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
-import 'common/stylus/index.styl'
 import {userInfo} from 'api/user'
 import {ERR_OK} from 'api/config'
+import 'iview/dist/styles/iview.css'
+import 'common/stylus/index.styl'
+import iview from './iview'
+
+Vue.use(iview)
 
 Vue.config.productionTip = false
 

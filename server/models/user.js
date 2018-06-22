@@ -20,6 +20,16 @@ const userModel = new mongoose.Schema({
       "checked":String,
       //选中的数量
     }
+  ],
+  //用户地址
+  "addressList":[
+    {
+      "addressId": String,
+      "name": String,
+      "streetName": String,
+      "photo": Number,
+      "isDefault": Boolean
+    }
   ]
 });
 module.exports = mongoose.model('user', userModel);

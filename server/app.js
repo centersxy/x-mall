@@ -12,6 +12,23 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// 登陆拦截
+app.use(function (req, res, next) {
+  if (req.cookies.userId) {
+    next()
+  } else {
+    var url = req.originalUrl
+    if (url == '/user/userInfo' || url.indexOf('/goods/goodsList')>0 ||url == '/user/login' ||url=='/user/logOut') {
+      next()
+    } else {
+      res.json({
+        code: '1',
+        message: '未登录状态'
+      })
+    }
+  }
+})
 //模块划分
 app.use('/api/user', require('./routers/user'));
 app.use('/api/goods', require('./routers/goods'));

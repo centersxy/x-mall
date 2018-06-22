@@ -1,20 +1,11 @@
 <template>
-    <div>
-      <y-shelf title="账户资料">
-        <div slot="content">
-        </div>
-      </y-shelf>
-    </div>
+
 </template>
 
 <script type="text/ecmascript-6">
-  import YShelf from 'base/shelf/shelf'
   export default{
     data() {
       return {}
-    },
-    components: {
-      YShelf
     }
   }
 </script>

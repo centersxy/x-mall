@@ -3,7 +3,7 @@
     <header class="w">
       <div class="h-box">
         <div class="logo">
-          <router-link to="/">首页</router-link>
+          <router-link to="/"><img src="/static/images/logo.jpg"></router-link>
         </div>
         <div class="nav-aside" :class="{fixed: (addClass && showNav)}">
           <div class="s-user pr">
@@ -17,7 +17,7 @@
                     <span :style="{backgroundImage: 'url('+userInfo.avatar+')'}"></span>
                   </div>
                   <p class="name">{{userInfo.name}}</p>
-                  <li><router-link to="">我的资料</router-link></li>
+                  <li><router-link to="/user">我的资料</router-link></li>
                   <li><router-link to="">我的资料</router-link></li>
                   <li><a href="javascript:;" @click="logOut">退出</a></li>
                 </ul>
@@ -121,6 +121,14 @@
         display: flex
         justify-content: space-between
         align-items:center
+        .logo
+          width: 200px
+          height: 100px
+          img
+            width: 135px
+            height: 100px
+            display: block
+            vertical-align: middle
         .nav-aside
           display: flex
           &.fixed

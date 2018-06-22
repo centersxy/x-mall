@@ -63,11 +63,21 @@
       },
       login() {
         const {userName, userPwd} = this.formLogin
-        Login({userName, userPwd}).then((res) => {
-          if (res.code === ERR_OK) {
-            this.$router.push('/')
-          }
-        })
+        if (!userName || !userPwd) {
+          this.$Message.warning('用户名或密码错误')
+        } else {
+          let params = {userName, userPwd}
+          Login(params).then((res) => {
+            if (res.code === ERR_OK) {
+              this.$Message.success('正在登录...')
+              setTimeout(() => {
+                this.$router.push('/')
+              },2000)
+            } else {
+              this.$Message.error('用户名或密码错误')
+            }
+          })
+        }
       }
     }
   }

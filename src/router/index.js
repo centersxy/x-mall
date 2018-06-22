@@ -1,12 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/login/login'
-import Index from 'components/index'
-import Home from 'components/home/home'
-import Goods from 'components/goods/goods'
-import Cart from 'components/shop-cart/shop-cart'
-import User from 'components/user/user'
-import userInfo from 'components/user/child/userInfo'
+const Index = (resolve) => {import('components/index').then((module) => resolve(module))}
+const Login =(resolve) => {import('components/login/login').then((module) => resolve(module))}
+const Home =(resolve) => {import('components/home/home').then((module) => resolve(module))}
+const Goods =(resolve) => {import('components/goods/goods').then((module) => resolve(module))}
+const Cart =(resolve) => {import('components/shop-cart/shop-cart').then((module) => resolve(module))}
+const User =(resolve) => {import('components/user/user').then((module) => resolve(module))}
+const userInfo =(resolve) => {import('components/user/child/userInfo').then((module) => resolve(module))}
+const checkOut =(resolve) => {import('components/checkOut/checkOut').then((module) => resolve(module))}
+const Order =(resolve) => {import('components/order/order').then((module) => resolve(module))}
+const orderConfirm =(resolve) => {import('components/order/orderConfirm').then((module) => resolve(module))}
+const orderSuccess =(resolve) => {import('components/order/orderSuccess').then((module) => resolve(module))}
+
 Vue.use(Router)
 
 export default new Router({
@@ -36,8 +41,27 @@ export default new Router({
       component: Cart
     },
     {
+      path: '/checkOut',
+      component: checkOut,
+    },
+    {
+      path: '/order',
+      component: Order,
+      children: [
+        {
+          path: 'orderConfirm',
+          component: orderConfirm
+        },
+        {
+          path: 'orderSuccess',
+          component: orderSuccess
+        }
+      ]
+    },
+    {
       path: '/user',
       component: User,
+      redirect: '/user/userInfo',
       children: [
         {
           path: 'userInfo',

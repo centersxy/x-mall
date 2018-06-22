@@ -90,28 +90,28 @@ router.get('/logOut', (req, res) => {
 });
 
 // 获取用户信息
-router.get('/userInfo', async (req,res) => {
+router.get('/userInfo', async (req, res) => {
   const userId = req.cookies.userId;
   try {
     if (userId) {
-      let {name, avatar,createTime} = await userModel.findOne({userId});
+      let {name, avatar, createTime} = await userModel.findOne({userId});
       res.json({
         code: '0',
         message: 'suc',
-        result:{
+        result: {
           userInfo: {
-            name,avatar,createTime
+            name, avatar, createTime
           }
         }
       })
-    }else {
+    } else {
       res.json({
         code: '1',
         message: '用户未登录',
         result: ''
       })
     }
-  }catch (err) {
+  } catch (err) {
     res.json({
       code: '1',
       message: err.message,
@@ -231,11 +231,11 @@ router.post('/editCart', function (req, res, next) {
 * */
 router.post('/editCheckAll', async (req, res) => {
   const userId = req.cookies.userId,
-    checkAll = req.body.checkAll? '1': '0';
+    checkAll = req.body.checkAll ? '1' : '0';
   try {
     const userDoc = await userModel.findOne({userId});
     if (userDoc) {
-      userDoc.cartList.forEach((item) =>{
+      userDoc.cartList.forEach((item) => {
         item.checked = checkAll
       })
     }
@@ -264,4 +264,213 @@ router.post('/editCheckAll', async (req, res) => {
     });
   }
 });
+
+
+/*
+*  添加地址
+*  1、获取表单数据
+*  2、查找模块
+*  3、加入之前判断存入的地址是否为默认
+* */
+
+router.post('/addressAdd', async (req, res) => {
+  try {
+    let userId = req.cookies.userId,
+      name = req.body.name,
+      photo = req.body.photo,
+      streetName = req.body.streetName,
+      isDefault = req.body.isDefault || false;
+
+    if (userId && name && photo && streetName) {
+      const userDoc = await userModel.findOne({userId});
+
+      if (userDoc) {
+        let addressList = userDoc.addressList;
+        if (isDefault) {
+          addressList.forEach((item) => {
+            item.isDefault = false
+          })
+        }
+        addressList.push({
+          "addressId": parseInt(Date.parse(new Date())),
+          name,
+          streetName,
+          photo,
+          isDefault,
+        });
+        userDoc.save((err1, doc) => {
+          if (err1) {
+            res.json({
+              code: '1',
+              message: err1.message,
+              result: ''
+            })
+          } else {
+            res.json({
+              code: '0',
+              message: 'suc',
+              result: ''
+            })
+          }
+        })
+      }
+    }
+  } catch (err) {
+    res.json({
+      code: '1',
+      message: err.message,
+      result: ''
+    })
+  }
+});
+
+/*
+* 获取地址
+* */
+
+router.post('/getAddress', async (req, res) => {
+  const userId = req.cookies.userId,
+        addressId = req.query.addressId || ''; //
+  try {
+    const userDoc = await userModel.findOne({userId});
+    if (userDoc) {
+      let addressList = userDoc.addressList;
+      if (addressId) {
+        addressList.forEach((item) => {
+          if (item.addressId === addressId) {
+            addressList = item
+          }
+        })
+      }
+      res.json({
+        code: '0',
+        message: 'suc',
+        result: {
+          addressList: addressList
+        }
+      })
+    }
+  } catch (err) {
+    res.json({
+      code: '1',
+      message: err.message,
+      result: ''
+    })
+  }
+})
+
+/*
+* 修改地址
+* 1、获取表单
+* 2、是否修改了默认地址
+* 3、修改则全部更新 反之只修改当前内容
+* */
+
+router.post('/editAddress', async (req, res) => {
+  let userId = req.cookies.userId,
+    addressId = req.body.addressId,
+    name = req.body.name,
+    streetName = req.body.streetName,
+    photo = req.body.photo,
+    isDefault = req.body.isDefault;
+  try {
+    if (userId && addressId && name && streetName && photo) {
+      const userDoc = await userModel.findOne({userId});
+      if (isDefault) {
+        let addressList = userDoc.addressList;
+        addressList.forEach((item) => {
+          if (item.addressId === addressId) {
+            item.name = name
+            item.streetName = streetName
+            item.photo = photo
+            item.isDefault = true
+          } else {
+            item.isDefault = false
+          }
+        })
+        // 保存
+        userDoc.save((err) => {
+          if (err) {
+            res.json({
+              code: '1',
+              message: err.message,
+              result: ''
+            })
+          } else {
+            res.json({
+              code: '0',
+              message: 'suc',
+              result: ''
+            })
+          }
+        })
+      } else {
+        userDoc.update({userId, "addressList.addressId": addressId},
+          {
+            "addressList.$.name": name,
+            "addressList.$.streetName": streetName,
+            "addressList.$.photo": photo,
+          }, (err) => {
+            if (err) {
+              res.json({
+                code: '1',
+                message: err.message,
+                result: ''
+              })
+            } else {
+              res.json({
+                code: '0',
+                message: 'suc',
+                result: ''
+              })
+            }
+          });
+      }
+    }
+  } catch (err) {
+    res.json({
+      code: '1',
+      message: err.message,
+      result: ''
+    })
+  }
+});
+
+/* del-address*/
+router.get('/addressListDel', async (req, res) => {
+  const userId = req.cookies.userId,
+    addressId = req.query.addressId;
+  try {
+    const userDoc = await userModel.findOne({userId});
+    if (userDoc) {
+      userDoc.update({
+        $pull: {
+          addressList: {
+            "addressId": addressId
+          }
+        }
+      }, (err) => {
+        if (err) {
+          res.json({
+            code: '1',
+            message: err.message,
+            result: ''
+          })
+        } else {
+          res.json({
+            code: '0',
+            message: 'suc',
+            result: ''
+          })
+        }
+      })
+    }
+  } catch (e) {
+    res.json({
+      code: '1',
+      message: e.message,
+      result: ''
+    })
+  }
+})
 module.exports = router

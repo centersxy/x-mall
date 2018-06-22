@@ -49,11 +49,11 @@
                 <span class="total-num">总计<span>{{checkCount}}</span>件
                 </span>
                 <span class="total-price">总额
-                    <span>¥{{priceAll}}{{checkCount}}</span>
+                    <span>¥{{priceAll}}</span>
                 </span>
               </div>
               <input type="button" value="去结算" :class="{'disabled': !checkCount}" :disabled="checkCount >0? false: true"
-                     @click="goPlay">
+                     @click="goPay">
             </div>
           </div>
         </div>
@@ -68,6 +68,18 @@
         </div>
       </div>
     </div>
+    <Modal v-model="delConfirm" width="360">
+      <p slot="header" style="color:#f60;text-align:center">
+        <Icon type="information-circled"></Icon>
+        <span>删除确认</span>
+      </p>
+      <div style="text-align:center">
+        <p>您真的要删除吗?</p>
+      </div>
+      <div slot="footer">
+        <i-button type="error" size="large" long :loading="modal_loading" @click="del">删除</i-button>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -81,6 +93,9 @@
       return {
         cartList: [],
 //        checkedAllFlag: false
+        productId: '', //用于保存删除的id
+        delConfirm: false,
+        modal_loading: false,
       }
     },
     created() {
@@ -124,8 +139,8 @@
     },
     methods: {
       // 结算
-      goPlay() {
-        console.log(1)
+      goPay() {
+        this.$router.push('/checkOut')
       },
       // 全选
       checkedAll() {
@@ -136,10 +151,16 @@
         editCheckAll({checkAll})
       },
       delGoods(productId) {
-        delGoods({productId}).then(
+        this.productId = productId
+        this.delConfirm = true
+      },
+      del() {
+        delGoods({productId: this.productId}).then(
           this.cartList.forEach((item, index) => {
-            if (item.productId === productId) {
+            if (item.productId === this.productId) {
               this.cartList.splice(index , 1)
+              this.delConfirm = false
+              this.$Message.success('成功删除')
             }
           })
         )
