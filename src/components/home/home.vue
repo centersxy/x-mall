@@ -28,10 +28,12 @@
     },
     created() {
       this._getGoods()
+      console.log(getGoods())
     },
     methods: {
       _getGoods() {
         getGoods().then((res) => {
+          console.log(res)
           this.hotGoods = res.result.list
         })
       }

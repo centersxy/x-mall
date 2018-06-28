@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
     next()
   } else {
     var url = req.originalUrl
-    if (url == '/user/userInfo' || url.indexOf('/goods/goodsList')>0 ||url == '/user/login' ||url=='/user/logOut') {
+    if (url == '/api/user/userInfo' || url == '/api/goods/goodsList' ||url == '/api/user/login' ||url=='/api/user/logOut') {
       next()
     } else {
       res.json({
